@@ -1,22 +1,63 @@
 ---
 name: pipeline-review
-description: Prepare a deal-pipeline review from the Horison platform — every active deal, its stage, diligence depth, and what needs attention. Use when the user asks for a pipeline review, portfolio of live deals, weekly deal update, or "what's moving". Requires the Horison MCP connector.
+description: Produce a partner-ready review of the live deal pipeline from Horison — stage, diligence depth, momentum, and attention flags per deal. Use for weekly pipeline meetings, partner updates, or a quick "what's moving" check. Triggers on "pipeline review", "deal pipeline", "what's moving", "weekly update", or "which deals need attention". Requires the Horison MCP connector.
 ---
 
-# Pipeline review
+# Pipeline Review
 
-You are preparing the deal-pipeline review for the firm. If the Horison
+A status review built only from evidenced platform data — what each deal's
+data room and graph actually show, never inferred activity. If the Horison
 tools are not available, stop and tell the user to connect the Horison MCP
 server first (Horison → Settings → Integrations → Connect your agent).
 
-1. `list_deals()` — the full pipeline with stage and status.
-2. For each active deal (skip archived/closed): `get_deal_overview(deal_id)`
-   — document count and entity census as a proxy for diligence progress.
-3. For the 2–3 most advanced deals,
-   `get_metric_history(deal_id=..., entity_name="EBITDA")` for headline
-   numbers.
+## Workflow
 
-Produce: a pipeline table (deal | stage | status | docs | diligence depth |
-deep link), then a short narrative — what moved, what is stalled (documents
-but no recent activity), and which deals need attention. Use only tool data;
-do not infer activity that is not evidenced.
+### Step 1: The pipeline
+
+`list_deals()` — every deal visible to the user, with stage and status.
+Partition into active vs archived/closed; the review covers active deals
+only unless the user asks otherwise.
+
+### Step 2: Diligence depth per deal
+
+For each active deal: `get_deal_overview(deal_id)` — document count and
+entity census. Treat these as the proxy for diligence progress: documents
+ingested, entities and metrics extracted, themes formed.
+
+### Step 3: Headline numbers for the front of the pipeline
+
+For the 2–3 most advanced deals:
+`get_metric_history(deal_id=..., entity_name="EBITDA")` — headline
+financials with their as-of documents, so the partner meeting has numbers
+with sources.
+
+### Step 4: Flag
+
+Assign each deal a flag:
+- **Green** — data room growing, evidence consistent with its stage
+- **Yellow** — stage says diligence but the data room is thin (few
+  documents, sparse entity census) — knowledge is behind the process
+- **Red** — stalled: documents present but nothing new evidenced, or
+  material risk themes unaddressed in the question backlog
+
+## Output
+
+1. Pipeline table: deal | stage | status | docs | diligence depth | flag |
+   deep link.
+2. Short narrative — what moved, what is stalled, which 2–3 deals need
+   attention this week and the specific reason (e.g. "stage = DD but no
+   QoE in the data room").
+3. Headline numbers for the front-of-pipeline deals, each with its source
+   document link.
+
+## Important Notes
+
+- Use only tool data. "No new documents" is a fact; "the team has gone
+  quiet" is an inference — report the former, not the latter.
+- Document count is a proxy, not truth: a deal can be active in meetings
+  while the data room lags. Phrase yellow flags as "the data room is
+  behind", not "the deal is behind".
+- The pipeline is permission-scoped: this is the connected user's view,
+  not necessarily the whole firm's — say so in the header if presenting
+  to others.
+- Keep it board-ready: concise, factual, no filler.

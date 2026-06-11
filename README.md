@@ -24,7 +24,7 @@ skill sees only the deals and documents your account can see.
 **Claude Code / Cursor / VS Code**
 
 ```bash
-npx skills add horison/agent-skills
+npx skills add horison-ai/agent-skills
 ```
 
 **claude.ai / Claude Cowork** — upload the skill folders under
