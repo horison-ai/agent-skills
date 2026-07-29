@@ -49,3 +49,23 @@ added the workflows are available without installing anything.
 The skill bodies mirror the MCP prompts served by the Horison server
 (`prepare_ic_memo`, `dd_gap_analysis`, …) — if a prompt's methodology
 changes, change the matching skill in the same release.
+
+## Your firm's own skills need no install
+
+The six skills above are Horison's PE methodology, shipped as portable
+files. Skills your firm writes *inside* Horison are different: the MCP
+server serves them directly, so they need nothing installed from here.
+Once the connector is added, ask the agent to `list_skills` and load one
+with `read_skill`, or use the `/skill_…` slash command the server
+publishes for each one.
+
+Two consequences worth knowing:
+
+- These six files are a **local copy** and go stale — re-run
+  `npx skills add horison-ai/agent-skills` to pick up a change. Your
+  firm's own skills are read live on every call and are never stale.
+- A skill you create in Horison (or through the MCP's `create_skill`)
+  is loadable by name **immediately**, but its slash command only shows
+  up after your client next starts a session. The MCP transport is
+  stateless, so the server cannot push a `prompts/list_changed`
+  notification.
